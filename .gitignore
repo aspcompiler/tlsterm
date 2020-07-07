@@ -1,0 +1,14 @@
+.gradle/
+.idea/
+/build
+/buildSrc/build/
+/gradle/
+/lib/
+/out/
+/wrapper/
+/buildSrc/
+gradlew
+gradlew.bat
+.DS_Store
+/test-tcplocalhost/
+/target/
