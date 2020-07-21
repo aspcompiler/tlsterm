@@ -12,3 +12,4 @@ gradlew.bat
 .DS_Store
 /test-tcplocalhost/
 /target/
+*.log

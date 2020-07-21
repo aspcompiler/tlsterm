@@ -12,16 +12,27 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
-
+import io.netty.util.internal.logging.InternalLoggerFactory;
+import io.netty.util.internal.logging.Slf4JLoggerFactory;
 import java.io.File;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TlsTermProxy {
     static final int LOCAL_PORT = Integer.parseInt(System.getProperty("localPort", "8883"));
     static final String REMOTE_HOST = System.getProperty("remoteHost", "localhost");
-    static final int REMOTE_PORT = Integer.parseInt(System.getProperty("remotePort", "1883"));
+    static final int REMOTE_PORT = Integer.parseInt(System.getProperty("remotePort", "10183"));
+    static final boolean SEND_PPV2 = Boolean.parseBoolean(System.getProperty("ppv2", "true"));
+
+    static final Logger log = LoggerFactory.getLogger(TlsTermProxy.class);
+
 
     public static void main(String[] args) throws Exception {
-        System.err.println("Proxying *:" + LOCAL_PORT + " to " + REMOTE_HOST + ':' + REMOTE_PORT + " ...");
+        InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
+
+
+        //System.out.println("Proxying *:" + LOCAL_PORT + " to " + REMOTE_HOST + ':' + REMOTE_PORT + " ...");
+        log.info("Proxying *:" + LOCAL_PORT + " to " + REMOTE_HOST + ':' + REMOTE_PORT + " ...");
 
         //TLS
         //SelfSignedCertificate ssc = new SelfSignedCertificate();
@@ -42,7 +53,7 @@ public class TlsTermProxy {
             b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .handler(new LoggingHandler(LogLevel.INFO))
-                    .childHandler(new TlsTermProxyInitializer(sslCtx, REMOTE_HOST, REMOTE_PORT))
+                    .childHandler(new TlsTermProxyInitializer(sslCtx, REMOTE_HOST, REMOTE_PORT, SEND_PPV2))
                     .childOption(ChannelOption.AUTO_READ, false)
                     .bind(LOCAL_PORT).sync().channel().closeFuture().sync();
         } finally {
